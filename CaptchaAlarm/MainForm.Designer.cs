@@ -53,7 +53,7 @@ namespace CaptchaAlarm
             // ── Tray icon ────────────────────────────────────────────────────
             trayIcon = new System.Windows.Forms.NotifyIcon(components)
             {
-                Text = "CaptchaAlarm",
+                Text = "AlarmTool",
                 Visible = false
             };
 
@@ -68,7 +68,7 @@ namespace CaptchaAlarm
 
             // ── Form ────────────────────────────────────────────────────────
             SuspendLayout();
-            Text = "CaptchaAlarm – Aion Daeva Verification Monitor";
+            Text = "AlarmTool – Aion Daeva Verification Monitor";
             MinimumSize = new System.Drawing.Size(700, 560);
             Size = new System.Drawing.Size(800, 650);
             BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
@@ -157,11 +157,11 @@ namespace CaptchaAlarm
             {
                 Dock = System.Windows.Forms.DockStyle.Fill,
                 Orientation = System.Windows.Forms.Orientation.Vertical,
-                SplitterDistance = 430,
-                BackColor = System.Drawing.Color.FromArgb(30, 30, 30),
-                Panel1MinSize = 320,
-                Panel2MinSize = 220
+                BackColor = System.Drawing.Color.FromArgb(30, 30, 30)
             };
+            ((System.ComponentModel.ISupportInitialize)splitMain).BeginInit();
+            splitMain.SuspendLayout();
+            splitMain.SplitterMoved += SplitMain_SplitterMoved;
 
             // ── Left panel: Log + Stats ──────────────────────────────────────
             grpLog = MakeGroupBox("Detection Log");
@@ -214,7 +214,7 @@ namespace CaptchaAlarm
             lblIntervalLabel = MakeLabel("Monitoring Interval:", 10, y);
             lblIntervalValue = MakeLabel("2s", 210, y);
             lblIntervalValue.ForeColor = System.Drawing.Color.FromArgb(100, 200, 255);
-            y += 20;
+            y += 25;
 
             trackInterval = new System.Windows.Forms.TrackBar
             {
@@ -225,13 +225,13 @@ namespace CaptchaAlarm
                 BackColor = System.Drawing.Color.FromArgb(40, 40, 40)
             };
             trackInterval.Scroll += TrackInterval_Scroll;
-            y += 38;
+            y += 45;
 
             // Threshold slider
             lblThresholdLabel = MakeLabel("Confidence Threshold:", 10, y);
             lblThresholdValue = MakeLabel("70", 210, y);
             lblThresholdValue.ForeColor = System.Drawing.Color.FromArgb(100, 200, 255);
-            y += 20;
+            y += 25;
 
             trackThreshold = new System.Windows.Forms.TrackBar
             {
@@ -242,7 +242,7 @@ namespace CaptchaAlarm
                 BackColor = System.Drawing.Color.FromArgb(40, 40, 40)
             };
             trackThreshold.Scroll += TrackThreshold_Scroll;
-            y += 42;
+            y += 45;
 
             // Checkboxes
             chkNotifications = MakeCheckBox("Enable Notifications", 10, y); y += 26;
@@ -287,6 +287,9 @@ namespace CaptchaAlarm
             });
 
             splitMain.Panel2.Controls.Add(grpSettings);
+
+            splitMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitMain).EndInit();
 
             // ── Add to form ──────────────────────────────────────────────────
             Controls.Add(splitMain);

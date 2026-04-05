@@ -46,5 +46,9 @@ namespace CaptchaAlarm.Models
         /// <summary>Whether the application minimizes to the system tray.</summary>
         [JsonProperty("MinimizeToTray")]
         public bool MinimizeToTray { get; set; } = true;
+
+        /// <summary>Whether the user has accepted the disclaimer and terms of use.</summary>
+        [JsonProperty("DisclaimerAccepted")]
+        public bool DisclaimerAccepted { get; set; } = false;
     }
 }

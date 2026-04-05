@@ -38,12 +38,46 @@ namespace CaptchaAlarm
         public MainForm()
         {
             InitializeComponent();
+
+            // Adjust splitter distance after form is shown and fully laid out
+            Shown += (s, e) => AdjustSplitterDistance();
+
             ApplySettings();
             SetupSystemTray();
             SetupTimers();
             UpdateStatusDisplay(MonitorStatus.Stopped);
             NotificationService.Register();
-            AppLogger.Log("[App] CaptchaAlarm started.");
+            AppLogger.Log("[App] AlarmTool started.");
+        }
+
+        private void AdjustSplitterDistance()
+        {
+            try
+            {
+                // Set min sizes first - now the form is shown and has valid dimensions
+                splitMain.Panel1MinSize = 320;
+                splitMain.Panel2MinSize = 220;
+
+                // Now adjust splitter to be proportional to actual width
+                int containerWidth = splitMain.Width;
+                if (containerWidth > 0)
+                {
+                    int minDistance = splitMain.Panel1MinSize;
+                    int maxDistance = containerWidth - splitMain.Panel2MinSize - splitMain.SplitterWidth;
+
+                    // Set to 54% of container width, clamped to valid range
+                    int desiredDistance = (int)(containerWidth * 0.54);
+                    if (desiredDistance >= minDistance && desiredDistance <= maxDistance)
+                    {
+                        splitMain.SplitterDistance = desiredDistance;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // If adjustment fails, log it but don't crash
+                AppLogger.Log($"[UI] Failed to set splitter distance: {ex.Message}");
+            }
         }
 
         // ── Monitoring ──────────────────────────────────────────────────────────
@@ -287,7 +321,7 @@ namespace CaptchaAlarm
             if (_monitorTimer != null)
                 _monitorTimer.Interval = _settings.MonitoringInterval;
 
-            MessageBox.Show("Settings saved successfully.", "CaptchaAlarm",
+            MessageBox.Show("Settings saved successfully.", "AlarmTool",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -304,7 +338,7 @@ namespace CaptchaAlarm
 
         private void SetupSystemTray()
         {
-            trayIcon.Text = "CaptchaAlarm";
+            trayIcon.Text = "AlarmTool";
             trayIcon.Visible = false;
 
             var ctxMenu = new ContextMenuStrip();
@@ -359,7 +393,7 @@ namespace CaptchaAlarm
             _capture.Dispose();
             _detection.Dispose();
             _alarm.Dispose();
-            AppLogger.Log("[App] CaptchaAlarm exited.");
+            AppLogger.Log("[App] AlarmTool exited.");
             Application.Exit();
         }
 
@@ -397,7 +431,7 @@ namespace CaptchaAlarm
             var path = txtSoundPath.Text;
             if (!File.Exists(path))
             {
-                MessageBox.Show($"Sound file not found:\n{path}", "CaptchaAlarm",
+                MessageBox.Show($"Sound file not found:\n{path}", "AlarmTool",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -418,13 +452,32 @@ namespace CaptchaAlarm
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
+            // Ensure splitter distance is valid on resize
+            if (splitMain != null && ClientSize.Width > 0)
+            {
+                int minDistance = splitMain.Panel1MinSize;
+                int maxDistance = ClientSize.Width - splitMain.Panel2MinSize;
+
+                // Only adjust if current distance is out of valid range
+                if (splitMain.SplitterDistance < minDistance || splitMain.SplitterDistance > maxDistance)
+                {
+                    splitMain.SplitterDistance = Math.Clamp(splitMain.SplitterDistance, minDistance, maxDistance);
+                }
+            }
+
             if (_settings.MinimizeToTray && WindowState == FormWindowState.Minimized)
             {
                 Hide();
                 trayIcon.Visible = true;
-                trayIcon.ShowBalloonTip(2000, "CaptchaAlarm",
+                trayIcon.ShowBalloonTip(2000, "AlarmTool",
                     "Application minimised to tray. Double-click to restore.", ToolTipIcon.Info);
             }
+        }
+
+        private void SplitMain_SplitterMoved(object sender, EventArgs e)
+        {
+            // This event handler is wired in the designer to track splitter movements
+            // No action needed here, but it prevents any future issues
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

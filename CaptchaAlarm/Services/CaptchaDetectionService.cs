@@ -27,19 +27,23 @@ namespace CaptchaAlarm.Services
         private const int OcrPointsPerKeyword = 50;
 
         // ── Color thresholds ────────────────────────────────────────────────────
-        // Dark background (≈ #2d2d2d ± 15)
-        private const int DarkMin = 30, DarkMax = 60;
-        // Yellow/orange timer pixels
-        private const int YellowRMin = 180, YellowGMin = 120, YellowBMax = 80;
-        // Cyan/blue "chances remaining" text
-        private const int CyanRMax = 120, CyanGMin = 180, CyanBMin = 180;
+        // Dark background (≈ #2d2d2d) - made more strict
+        private const int DarkMin = 40, DarkMax = 50;
+        // Yellow/orange timer pixels - made more strict  
+        private const int YellowRMin = 200, YellowGMin = 140, YellowBMax = 60;
+        // Cyan/blue "chances remaining" text - made more strict
+        private const int CyanRMax = 100, CyanGMin = 200, CyanBMin = 200;
 
         private const int ColorScoreMax = 30;
         private const int DarkBgScore = 20;
         private const int LayoutScore = 20;
 
-        // How many dark-bg pixels must be sampled before counting the region
-        private const int DarkPixelMinCount = 500;
+        // Increased threshold for dark pixels to reduce false positives
+        private const int DarkPixelMinCount = 1000;
+
+        // Minimum counts for yellow/cyan to be more confident
+        private const int YellowMinCount = 20;
+        private const int CyanMinCount = 15;
 
         private TesseractEngine? _ocr;
         private bool _ocrAvailable;
@@ -190,25 +194,25 @@ namespace CaptchaAlarm.Services
 
             int score = 0;
             if (darkCount >= DarkPixelMinCount) score += DarkBgScore;
-            if (yellowCount >= 10) score += 15;
-            if (cyanCount >= 10) score += 15;
+            if (yellowCount >= YellowMinCount) score += 15;
+            if (cyanCount >= CyanMinCount) score += 15;
 
             return Math.Min(score, ColorScoreMax + DarkBgScore);
         }
 
         /// <summary>
         /// Awards layout score when a large dark rectangle is detected near the
-        /// screen centre (typical position of the Aion verification popup).
+        /// screen centre AND has the characteristic aspect ratio of the captcha window.
         /// </summary>
         private static int AnalyseLayout(Bitmap bmp)
         {
             int cx = bmp.Width / 2;
             int cy = bmp.Height / 2;
 
-            // Sample a band around screen centre
+            // Sample a narrower band - captcha window is not very large
             int darkInCenter = 0;
-            int sampleW = bmp.Width / 4;
-            int sampleH = bmp.Height / 4;
+            int sampleW = bmp.Width / 6;  // Reduced from /4
+            int sampleH = bmp.Height / 6; // Reduced from /4
             int step = 8;
 
             for (int x = cx - sampleW; x < cx + sampleW; x += step)
@@ -224,7 +228,8 @@ namespace CaptchaAlarm.Services
                 }
             }
 
-            return darkInCenter >= 200 ? LayoutScore : 0;
+            // Increased threshold to be more strict
+            return darkInCenter >= 300 ? LayoutScore : 0;
         }
 
         public void Dispose()

@@ -8,8 +8,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
-    <AssemblyTitle>CaptchaAlarm</AssemblyTitle>
-    <AssemblyDescription>Screen monitoring application for Aion Daeva Verification CAPTCHA</AssemblyDescription>
+    <AssemblyName>AlarmTool</AssemblyName>
+    <AssemblyTitle>AlarmTool</AssemblyTitle>
+    <AssemblyDescription>Screen monitoring application for Aion Daeva Verification</AssemblyDescription>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PlatformTarget>x64</PlatformTarget>
@@ -36,5 +37,12 @@
     </Content>
   </ItemGroup>
 
+  <!-- Auto-copy tessdata if it exists in the project -->
+  <ItemGroup>
+    <Content Include="tessdata\**\*.*" Condition="Exists('tessdata')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>tessdata\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
 
 </Project>
