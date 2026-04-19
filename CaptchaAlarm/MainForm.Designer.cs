@@ -159,7 +159,7 @@
             tblControls.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70f));
             tblControls.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30f));
 
-            btnStart = MakeButton("â–¶ Start Monitoring", System.Drawing.Color.FromArgb(40, 130, 60));
+            btnStart = MakeButton("Start Monitoring", System.Drawing.Color.FromArgb(40, 130, 60));
             btnStart.Click += BtnStart_Click;
             btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
             btnStart.Font = new System.Drawing.Font("Segoe UI", 11f, System.Drawing.FontStyle.Bold);
